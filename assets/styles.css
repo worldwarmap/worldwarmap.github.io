@@ -1,6 +1,39 @@
+body {
+    font: 16px Arial;
+}
 #mapid {
     height: 750px;
     width: 1024px;
+    display: inline-block;
+}
+
+#rightside {
+    display: inline-block;
+    width: 300px;
+}
+
+#instructions {
+    font-size: 10px;
+}
+
+#news {
+    height: 60px;
+}
+
+#months {
+    width: 200px;
+    height: 500px;
+    overflow: auto;
+    border: 1px solid #ccc;
+}
+
+.month {
+    text-decoration: none;
+    color: #000;
+    display:block;
+    margin: 2px;
+    padding: 3px;
+    background-color: #bbb
 }
 
 .leaflet-container {
