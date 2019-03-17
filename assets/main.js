@@ -1,4 +1,6 @@
 async function main() {
+  // name changes
+  var nameChange = {'The Bahamas': 'Bahamas'};
   // extract data from files
   var colorsText = await fetch('assets/colors.json', {cache: "no-store"});
   colors = await colorsText.json(); delete colors.junk;
@@ -22,6 +24,7 @@ async function main() {
   // set initial ownership of territories: each country owns itself
   var initialOwnership = {};
   countries.forEach(function(country) {
+    if (country in nameChange) country = nameChange[country];
     initialOwnership[country] = country;
   });
   // populate ownerships array starting from december 2019 to current month
@@ -47,6 +50,8 @@ async function main() {
   shpfile = new L.Shapefile('ne_110m_admin_0_countries.zip', {
     onEachFeature: function(feature, layer) {
       if (feature.properties) {
+        layer.territory = feature.properties.GEOUNIT;
+        if (layer.territory in nameChange) layer.territory = nameChange[layer.territory];
         layer.setStyle({
           color: '#000',
           weight: 1,
@@ -54,7 +59,6 @@ async function main() {
           //fillColor: '#'+(Math.floor(Math.random() * Math.floor(0xFFFFFF+1))+0xFFFFFF+1).toString(16).substr(-6),
           fillOpacity: 1,
         })
-        layer.territory = feature.properties.GEOUNIT;
         layer.bindPopup('Territory: ' + layer.territory + '<br>Owner: ' + layer.territory);
       }
     }
@@ -65,6 +69,10 @@ function onMonthUpdate(month) {
   document.getElementsByClassName(currMonth.replace(' ', '-'))[0].style["background-color"] = "#bbb"
   currMonth = month;
   var currOwnership = ownerships[month];
+  if (month != 'December 2019') {
+    var lastMonth = months[months.indexOf(currMonth) - 1];
+    var lastOwner = ownerships[lastMonth][currOwnership.territory];
+  }
   shpfile.setZIndex(100);
   shpfile.eachLayer(function(layer){
     var territory = layer.territory;
@@ -77,7 +85,8 @@ function onMonthUpdate(month) {
       }
       if (territory == currOwnership.territory) {
         layer.setStyle({color: '#f00', weight: 3});
-      } else if (owner == currOwnership.territory) {
+      }
+      if (owner == lastOwner) {
         layer.setStyle({color: '#00f', weight: 3});
       }
     }
@@ -86,7 +95,7 @@ function onMonthUpdate(month) {
     news = 'Peacetime.';
   }
   else {
-    news = month + ', ' + currOwnership.conqueror + ' conquers ' + currOwnership.territory + '.';
+    news = month + ', ' + currOwnership.conqueror + ' conquers ' + currOwnership.territory + ' territory previously owned by ' + lastOwner + '.';
   }
   document.getElementById('news').textContent = news;
   var clickedButton = document.getElementsByClassName(currMonth.replace(' ', '-'))[0];
