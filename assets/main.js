@@ -1,8 +1,8 @@
 async function main() {
   // extract data from files
-  var colorsText = await fetch('assets/colors.json');
+  var colorsText = await fetch('assets/colors.json', {cache: "no-store"});
   colors = await colorsText.json(); delete colors.junk;
-  var eventsText = await fetch('assets/events.json');
+  var eventsText = await fetch('assets/events.json', {cache: "no-store"});
   events = await eventsText.json();
 
   // get countries list
