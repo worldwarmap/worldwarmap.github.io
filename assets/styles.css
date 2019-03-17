@@ -1,0 +1,8 @@
+#mapid {
+    height: 750px;
+    width: 1024px;
+}
+
+.leaflet-container {
+    background-color: #AADAFF;
+}
