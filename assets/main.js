@@ -22,6 +22,7 @@ async function main() {
   // populate ownerships array starting from december 2019 to current month
   ownerships = {};
   ownerships[peacetime] = initialOwnership;
+  ownerships[peacetime].news = 'Peacetime.';
   lastMonth = peacetime;
   events.forEach(function(event) {
     if (event.length) {
@@ -31,8 +32,14 @@ async function main() {
       var ownership = {};
       Object.assign(ownership, ownerships[lastMonth]);
       ownership[territory] = conqueror;
-      ownership['conqueror'] = conqueror;
-      ownership['territory'] = territory;
+      ownership.conqueror = conqueror;
+      ownership.territory = territory;
+
+      // prerender news
+      var lastOwner = ownerships[lastMonth][ownership.territory];
+      ownership.news = month + ', ' + ownership.conqueror + ' conquers ' + ownership.territory + ' territory previously owned by ' + lastOwner + '.';
+
+      // save ownership to ownerships object
       ownerships[month] = ownership;
       months.push(month);
       lastMonth = month;
@@ -61,41 +68,57 @@ async function main() {
   });
   shpfile.addTo(map);
 
-  function addButton(month) {
-    var newDiv = document.createElement('a');
-    newDiv.setAttribute('href', '#a');
-    newDiv.setAttribute('class', 'month ' + month.replace(' ', '-'));
-    newDiv.setAttribute('onclick', 'onMonthUpdate(\'' + month + '\')');
-    // console.log(abbrevs);
-    var cells = [
-      month,
-      abbrevs[ownerships[month].conqueror],
-      '->',
-      abbrevs[ownerships[month].territory]
-    ];
-    if (month == peacetime) cells = [month, '', '', ''];
-    cells.forEach(function(cell) {
-      var cellDiv = document.createElement('div');
-      cellDiv.setAttribute('class', 'month-cell');
-      cellDiv.appendChild(document.createTextNode(cell));
-      newDiv.appendChild(cellDiv);
-    });
-    document.getElementById('months').appendChild(newDiv);
-  }
   var intervalId = setInterval(function() {
     if (layersDoneLoading == countries.length) {
       clearInterval(intervalId);
-      months.forEach(function(month) {
-        addButton(month);
-      });
+      addButtons('');
     }
-    console.log(layersDoneLoading);
   }, 100)
+}
+function addButton(month) {
+  var newDiv = document.createElement('a');
+  newDiv.setAttribute('href', '#a');
+  newDiv.setAttribute('class', 'month ' + month.replace(' ', '-'));
+  newDiv.setAttribute('onclick', 'onMonthUpdate(\'' + month + '\')');
+  // console.log(abbrevs);
+  var cells = [
+    month,
+    abbrevs[ownerships[month].conqueror],
+    '->',
+    abbrevs[ownerships[month].territory]
+  ];
+  if (month == peacetime) cells = [month, '', '', ''];
+  cells.forEach(function(cell) {
+    var cellDiv = document.createElement('div');
+    cellDiv.setAttribute('class', 'month-cell');
+    cellDiv.appendChild(document.createTextNode(cell));
+    newDiv.appendChild(cellDiv);
+  });
+  document.getElementById('months').appendChild(newDiv);
+}
+
+function addButtons(flt) {
+  var filter = flt;
+  var monthsDiv = document.getElementById('months');
+  while (monthsDiv.firstChild) {
+    monthsDiv.removeChild(monthsDiv.firstChild);
+  }
+  months.forEach(function(month) {
+    var newsThisMonth = ownerships[month].news.toLowerCase();
+    var flt = filter.toLowerCase();
+    if (newsThisMonth == "june 2045, syria conquers iraq territory previously owned by iraq.") console.log(newsThisMonth, '|', flt);
+    if (newsThisMonth.indexOf(flt) != -1) {
+      addButton(month);
+    }
+  });
 }
 
 // updates the map, and buttons given the current month
 function onMonthUpdate(month) {
-  document.getElementsByClassName(currMonth.replace(' ', '-'))[0].style["background-color"] = "#bbb"
+  n = document.getElementsByClassName(currMonth.replace(' ', '-'));
+  if (n.length > 0) {
+    n[0].style["background-color"] = "#bbb";
+  }
   currMonth = month;
   var currOwnership = ownerships[month];
   if (month != peacetime) {
@@ -120,32 +143,37 @@ function onMonthUpdate(month) {
       }
     }
   });
-  if (month == peacetime) {
-    news = 'Peacetime.';
-  }
-  else {
-    news = month + ', ' + currOwnership.conqueror + ' conquers ' + currOwnership.territory + ' territory previously owned by ' + lastOwner + '.';
-  }
-  document.getElementById('news').textContent = news;
+  document.getElementById('news').textContent = currOwnership.news;
   var clickedButton = document.getElementsByClassName(currMonth.replace(' ', '-'))[0];
   clickedButton.style["background-color"] = "#ff7";
 }
 
 // key events (up down arrow, etc)
 document.addEventListener('keydown', function(e) {
-  if (e.code == 'ArrowDown') {
+  if (e.code == 'ArrowDown' || e.code == 'ArrowUp') {
     e.preventDefault();
-    index = months.indexOf(currMonth);
-    if (index < months.length-1) {
-      onMonthUpdate(months[index+1]);
+    n = document.getElementsByClassName(currMonth.replace(' ', '-'));
+    if (n.length == 0) {
+      currButton = document.getElementById('months').firstChild;
+    } else {
+      currButton = n[0];
     }
-  }
-  if (e.code == 'ArrowUp') {
-    e.preventDefault();
-    index = months.indexOf(currMonth);
-    if (index > 0) {
-      onMonthUpdate(months[index-1]);
+    if (e.code == 'ArrowDown') {
+      var nextSib = currButton.nextSibling;
+      if (nextSib) {
+        onMonthUpdate(nextSib.firstChild.textContent);
+      }
+    } else {
+      var prevSib = currButton.previousSibling;
+      if (prevSib) {
+        onMonthUpdate(prevSib.firstChild.textContent);
+      }
     }
   }
 })
+
+document.getElementById('search-bar').addEventListener('input', function(e) {
+  var searchText = document.getElementById('search-bar').value;
+  addButtons(searchText);
+});
 main();
