@@ -10,6 +10,7 @@ async function main() {
 
   // get countries list
   countries = Object.keys(colors);
+  abbrevs = {};
   months = [peacetime]
   currMonth = peacetime;
   
@@ -55,6 +56,7 @@ async function main() {
     onEachFeature: function(feature, layer) {
       if (feature.properties) {
         layer.territory = feature.properties.GEOUNIT;
+        abbrevs[layer.territory] = feature.properties.GU_A3;
         if (layer.territory in nameChange) layer.territory = nameChange[layer.territory];
         layer.setStyle({
           fillOpacity: 1,
