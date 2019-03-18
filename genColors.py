@@ -1,7 +1,7 @@
 # generate random colors for countries
 import random
-fileIn = open('assets/countries.txt', 'r')
-fileOut = open('assets/colors.json', 'w')
+fileIn = open('data/countries.txt', 'r')
+fileOut = open('data/colors.json', 'w')
 
 fileOut.write('{\n')
 for line in fileIn.readlines():

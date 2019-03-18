@@ -5,8 +5,8 @@ from sys import argv
 if len(argv) < 2:
     raise Exception('Type latest year in argument (is okay if a few years ahead) e.g. python3 serializeEvents.py 2050')
 
-fileIn = open('assets/events.txt', 'r')
-fileOut = open('assets/events.json', 'w')
+fileIn = open('data/events.txt', 'r')
+fileOut = open('data/events.json', 'w')
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
 pattern = r'{} {}, ([\w ]+?) conquered ([\w \.\-]+?)( territory|$)'

@@ -1,16 +1,17 @@
+// impt vars
+var peacetime = 'December 2019';
+var nameChange = {'The Bahamas': 'Bahamas'};
 async function main() {
-  // name changes
-  var nameChange = {'The Bahamas': 'Bahamas'};
   // extract data from files
-  var colorsText = await fetch('assets/colors.json', {cache: "no-store"});
+  var colorsText = await fetch('data/colors.json', {cache: "no-store"});
   colors = await colorsText.json(); delete colors.junk;
-  var eventsText = await fetch('assets/events.json', {cache: "no-store"});
+  var eventsText = await fetch('data/events.json', {cache: "no-store"});
   events = await eventsText.json();
 
   // get countries list
   countries = Object.keys(colors);
-  months = ['December 2019']
-  currMonth = months[0];
+  months = [peacetime]
+  currMonth = peacetime;
   
   function addButton(month) {
     var newDiv = document.createElement('a');
@@ -20,16 +21,16 @@ async function main() {
     newDiv.appendChild(document.createTextNode(month));
     document.getElementById('months').appendChild(newDiv);
   }
-  addButton('December 2019');
+  addButton(peacetime);
   // set initial ownership of territories: each country owns itself
   var initialOwnership = {};
   countries.forEach(function(country) {
-    if (country in nameChange) country = nameChange[country];
     initialOwnership[country] = country;
   });
   // populate ownerships array starting from december 2019 to current month
-  ownerships = {'December 2019': initialOwnership};
-  lastMonth = 'December 2019';
+  ownerships = {};
+  ownerships[peacetime] = initialOwnership;
+  lastMonth = peacetime;
   events.forEach(function(event) {
     if (event.length) {
       var conqueror = event[2];
@@ -46,30 +47,34 @@ async function main() {
       lastMonth = month;
     }
   });
+  // initialize map
   map = L.map('mapid').setView([0,0], 2);
+  // initialize shapefiles
   shpfile = new L.Shapefile('ne_110m_admin_0_countries.zip', {
+    // loop each country
     onEachFeature: function(feature, layer) {
       if (feature.properties) {
         layer.territory = feature.properties.GEOUNIT;
         if (layer.territory in nameChange) layer.territory = nameChange[layer.territory];
         layer.setStyle({
+          fillOpacity: 1,
           color: '#000',
           weight: 1,
-          fillColor: colors[feature.properties.GEOUNIT],
-          //fillColor: '#'+(Math.floor(Math.random() * Math.floor(0xFFFFFF+1))+0xFFFFFF+1).toString(16).substr(-6),
-          fillOpacity: 1,
-        })
-        layer.bindPopup('Territory: ' + layer.territory + '<br>Owner: ' + layer.territory);
+          fillColor: colors[layer.territory]
+        });
       }
     }
   });
   shpfile.addTo(map);
+  onMonthUpdate(peacetime);
 }
+
+// updates the map, and buttons given the current month
 function onMonthUpdate(month) {
   document.getElementsByClassName(currMonth.replace(' ', '-'))[0].style["background-color"] = "#bbb"
   currMonth = month;
   var currOwnership = ownerships[month];
-  if (month != 'December 2019') {
+  if (month != peacetime) {
     var lastMonth = months[months.indexOf(currMonth) - 1];
     var lastOwner = ownerships[lastMonth][currOwnership.territory];
   }
@@ -79,7 +84,7 @@ function onMonthUpdate(month) {
     var owner = currOwnership[territory];
     layer.setStyle({color: '#000', weight: 1, fillColor: colors[owner]});
     layer.bindPopup('Territory: ' + territory + '<br>Owner: ' + owner);
-    if (month != 'December 2019') {
+    if (month != peacetime) {
       if (owner == currOwnership.conqueror) {
         layer.setStyle({color: '#0f0', weight: 3});
       }
@@ -91,7 +96,7 @@ function onMonthUpdate(month) {
       }
     }
   });
-  if (month == 'December 2019') {
+  if (month == peacetime) {
     news = 'Peacetime.';
   }
   else {
@@ -101,6 +106,8 @@ function onMonthUpdate(month) {
   var clickedButton = document.getElementsByClassName(currMonth.replace(' ', '-'))[0];
   clickedButton.style["background-color"] = "#ff7";
 }
+
+// key events (up down arrow, etc)
 document.addEventListener('keydown', function(e) {
   if (e.code == 'ArrowDown') {
     e.preventDefault();
