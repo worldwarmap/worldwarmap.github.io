@@ -21,8 +21,8 @@ body {
 }
 
 #months {
-    width: 300px;
-    height: 500px;
+    width: 280px;
+    height: 400px;
     overflow: auto;
     border: 1px solid #ccc;
 }
