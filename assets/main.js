@@ -1,6 +1,6 @@
 // impt vars
 var peacetime = 'December 2019';
-var nameChange = {'The Bahamas': 'Bahamas'};
+var nameChange = {'The Bahamas': 'Bahamas', 'Republic of Serbia': 'Serbia'};
 async function main() {
   // extract data from files
   var colorsText = await fetch('data/colors.json', {cache: "no-store"});
@@ -14,15 +14,6 @@ async function main() {
   months = [peacetime]
   currMonth = peacetime;
   
-  function addButton(month) {
-    var newDiv = document.createElement('a');
-    newDiv.setAttribute('href', '#a');
-    newDiv.setAttribute('class', 'month ' + month.replace(' ', '-'));
-    newDiv.setAttribute('onclick', 'onMonthUpdate(\'' + month + '\')');
-    newDiv.appendChild(document.createTextNode(month));
-    document.getElementById('months').appendChild(newDiv);
-  }
-  addButton(peacetime);
   // set initial ownership of territories: each country owns itself
   var initialOwnership = {};
   countries.forEach(function(country) {
@@ -44,31 +35,62 @@ async function main() {
       ownership['territory'] = territory;
       ownerships[month] = ownership;
       months.push(month);
-      addButton(month);
       lastMonth = month;
     }
   });
   // initialize map
   map = L.map('mapid').setView([0,0], 2);
   // initialize shapefiles
+  var layersDoneLoading = 0;
   shpfile = new L.Shapefile('ne_110m_admin_0_countries.zip', {
     // loop each country
     onEachFeature: function(feature, layer) {
       if (feature.properties) {
         layer.territory = feature.properties.GEOUNIT;
-        abbrevs[layer.territory] = feature.properties.GU_A3;
         if (layer.territory in nameChange) layer.territory = nameChange[layer.territory];
+        abbrevs[layer.territory] = feature.properties.GU_A3;
         layer.setStyle({
           fillOpacity: 1,
           color: '#000',
           weight: 1,
           fillColor: colors[layer.territory]
         });
+        layersDoneLoading += 1;
       }
     }
   });
   shpfile.addTo(map);
-  onMonthUpdate(peacetime);
+
+  function addButton(month) {
+    var newDiv = document.createElement('a');
+    newDiv.setAttribute('href', '#a');
+    newDiv.setAttribute('class', 'month ' + month.replace(' ', '-'));
+    newDiv.setAttribute('onclick', 'onMonthUpdate(\'' + month + '\')');
+    // console.log(abbrevs);
+    var cells = [
+      month,
+      abbrevs[ownerships[month].conqueror],
+      '->',
+      abbrevs[ownerships[month].territory]
+    ];
+    if (month == peacetime) cells = [month, '', '', ''];
+    cells.forEach(function(cell) {
+      var cellDiv = document.createElement('div');
+      cellDiv.setAttribute('class', 'month-cell');
+      cellDiv.appendChild(document.createTextNode(cell));
+      newDiv.appendChild(cellDiv);
+    });
+    document.getElementById('months').appendChild(newDiv);
+  }
+  var intervalId = setInterval(function() {
+    if (layersDoneLoading == countries.length) {
+      clearInterval(intervalId);
+      months.forEach(function(month) {
+        addButton(month);
+      });
+    }
+    console.log(layersDoneLoading);
+  }, 100)
 }
 
 // updates the map, and buttons given the current month

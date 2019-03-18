@@ -15,7 +15,9 @@ cleanCountries = {
         'Solomon Is.': 'Solomon Islands',
         'Eq. Guinea': 'Equatorial Guinea',
         'N. Cyprus': 'Northern Cyprus',
-        'Dominican Rep.': 'Dominican Republic'
+        'Dominican Rep.': 'Dominican Republic',
+        'Republic of Serbia': 'Serbia',
+        'United Republic of Tanzania': 'Tanzania'
         }
 
 willReadFile = True
