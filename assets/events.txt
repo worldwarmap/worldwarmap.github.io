@@ -298,3 +298,14 @@ May 2044, Honduras conquered Belize territory.
 June 2044, Algeria conquered Egypt territory.
 July 2044, Republic of the Congo conquered Nigeria territory previously occupied by Cameroon.
 August 2044, Bosnia and Herzegovina conquered Bosnia and Herzegovina territory previously occupied by Greece.
+September 2044, Pakistan conquered Uzbekistan territory previously occupied by Turkmenistan.
+October 2044, Democratic Republic of the Congo conquered Rwanda territory previously occupied by South Sudan.
+November 2044, Brunei conquered Australia territory previously occupied by New Caledonia.
+December 2044, Paraguay conquered Argentina territory previously occupied by Chile.
+January 2045, Mali conquered Ghana territory previously occupied by Liberia.
+February 2045, South Sudan conquered Rwanda territory previously occupied by Democratic Republic of the Congo.
+March 2045, Paraguay conquered Chile territory.
+April 2045, Brunei conquered Laos territory previously occupied by Vietnam.
+Vietnam has been completely defeated.
+May 2045, Syria conquered Israel territory previously occupied by Egypt.
+June 2045, Syria conquered Iraq territory.
