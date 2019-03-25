@@ -16,13 +16,19 @@ async function main() {
   
   // set initial ownership of territories: each country owns itself
   var initialOwnership = {};
+  var initialEmpires = {};
   countries.forEach(function(country) {
     initialOwnership[country] = country;
+    initialEmpires[country] = [country];
   });
-  // populate ownerships array starting from december 2019 to current month
+  // populate ownerships & empires array starting from december 2019 to current month
   ownerships = {};
   ownerships[peacetime] = initialOwnership;
   ownerships[peacetime].news = 'Peacetime.';
+  empiresHist = {};
+  empiresHist[peacetime] = initialEmpires;
+  monthData = {};
+
   lastMonth = peacetime;
   events.forEach(function(event) {
     if (event.length) {
@@ -34,13 +40,22 @@ async function main() {
       ownership[territory] = conqueror;
       ownership.conqueror = conqueror;
       ownership.territory = territory;
+      // save ownership to ownerships object
+      ownerships[month] = ownership;
 
       // prerender news
       var lastOwner = ownerships[lastMonth][ownership.territory];
       ownership.news = month + ', ' + ownership.conqueror + ' conquers ' + ownership.territory + ' territory previously owned by ' + lastOwner + '.';
 
-      // save ownership to ownerships object
-      ownerships[month] = ownership;
+      // gen empires list
+      var empires = {};
+      Object.assign(empires, empiresHist[lastMonth]);
+      empires[conqueror].push(territory);
+      empires[lastOwner] = empires[lastOwner].filter(function(x) {
+        return x != territory;
+      });
+      empiresHist[month] = empires;
+
       months.push(month);
       lastMonth = month;
     }
@@ -147,6 +162,11 @@ function onMonthUpdate(month) {
   document.getElementById('news').textContent = currOwnership.news;
   var clickedButton = document.getElementsByClassName(currMonth.replace(' ', '-'))[0];
   clickedButton.style["background-color"] = "#ff7";
+
+  var currEmpires = empiresHist[month];
+  sortedKeys = Object.keys(currEmpires).sort(function(a, b) {
+    return currEmpires[a].length - currEmpires[b].length;
+  });
 }
 
 // key events (up down arrow, etc)
