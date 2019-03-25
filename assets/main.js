@@ -48,10 +48,8 @@ async function main() {
       ownership.news = month + ', ' + ownership.conqueror + ' conquers ' + ownership.territory + ' territory previously owned by ' + lastOwner + '.';
 
       // gen empires list
-      var empires = {};
-      Object.assign(empires, empiresHist[lastMonth]);
+      var empires = JSON.parse(JSON.stringify(empiresHist[lastMonth]));
       empires[conqueror].push(territory);
-      console.log(month, lastOwner);
       empires[lastOwner] = empires[lastOwner].filter(function(x) {
         return x != territory;
       });
@@ -89,6 +87,7 @@ async function main() {
     if (layersDoneLoading == countries.length) {
       clearInterval(intervalId);
       addButtons('');
+      onMonthUpdate(peacetime);
     }
   }, 100)
 }
@@ -97,7 +96,6 @@ function addButton(month) {
   newDiv.setAttribute('href', '#a');
   newDiv.setAttribute('class', 'month ' + month.replace(' ', '-'));
   newDiv.setAttribute('onclick', 'onMonthUpdate(\'' + month + '\')');
-  // console.log(abbrevs);
   var cells = [
     month,
     abbrevs[ownerships[month].conqueror],
@@ -123,7 +121,6 @@ function addButtons(flt) {
   months.forEach(function(month) {
     var newsThisMonth = ownerships[month].news.toLowerCase();
     var flt = filter.toLowerCase();
-    if (newsThisMonth == "june 2045, syria conquers iraq territory previously owned by iraq.") console.log(newsThisMonth, '|', flt);
     if (newsThisMonth.indexOf(flt) != -1) {
       addButton(month);
     }
@@ -165,9 +162,37 @@ function onMonthUpdate(month) {
   clickedButton.style["background-color"] = "#ff7";
 
   var currEmpires = empiresHist[month];
-  sortedKeys = Object.keys(currEmpires).sort(function(a, b) {
-    return currEmpires[a].length - currEmpires[b].length;
+  var sortedEmpires = Object.keys(currEmpires).sort(function(a, b) {
+    return currEmpires[b].length - currEmpires[a].length;
   });
+  var empiresTableBody = document.getElementById('empires-table-body');
+  while (empiresTableBody.firstChild) {
+    empiresTableBody.removeChild(empiresTableBody.firstChild);
+  }
+  var totalEmpires = 0;
+  sortedEmpires.forEach(function(empire, i) {
+    if (currEmpires[empire].length) {
+      var rank = (i + 1).toString();
+      var territoriesStr = '(' + currEmpires[empire].length + ') ' + currEmpires[empire].join(', ');
+
+      var newRow = document.createElement('div');
+      newRow.setAttribute('class', 'rTableRow');
+      var cells = [
+        rank,
+        empire,
+        territoriesStr
+      ];
+      cells.forEach(function(cell) {
+        var cellDiv = document.createElement('div');
+        cellDiv.setAttribute('class', 'rTableCell');
+        cellDiv.appendChild(document.createTextNode(cell));
+        newRow.appendChild(cellDiv);
+      });
+      empiresTableBody.appendChild(newRow);
+      totalEmpires += 1;
+    }
+  });
+  document.getElementById('empire-number').textContent = totalEmpires;
 }
 
 // key events (up down arrow, etc)
