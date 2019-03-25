@@ -51,6 +51,7 @@ async function main() {
       var empires = {};
       Object.assign(empires, empiresHist[lastMonth]);
       empires[conqueror].push(territory);
+      console.log(month, lastOwner);
       empires[lastOwner] = empires[lastOwner].filter(function(x) {
         return x != territory;
       });
