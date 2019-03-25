@@ -47,6 +47,7 @@ async function main() {
   });
   // initialize map
   map = L.map('mapid').setView([0,0], 2);
+  L.tileLayer('http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg').addTo(map);
   // initialize shapefiles
   var layersDoneLoading = 0;
   shpfile = new L.Shapefile('ne_110m_admin_0_countries.zip', {
@@ -57,7 +58,7 @@ async function main() {
         if (layer.territory in nameChange) layer.territory = nameChange[layer.territory];
         abbrevs[layer.territory] = feature.properties.GU_A3;
         layer.setStyle({
-          fillOpacity: 1,
+          fillOpacity: 0.7,
           color: '#000',
           weight: 1,
           fillColor: colors[layer.territory]

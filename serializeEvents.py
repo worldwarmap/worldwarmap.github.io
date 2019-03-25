@@ -2,9 +2,6 @@ import re
 import itertools
 from sys import argv
 
-if len(argv) < 2:
-    raise Exception('Type latest year in argument (is okay if a few years ahead) e.g. python3 serializeEvents.py 2050')
-
 fileIn = open('data/events.txt', 'r')
 fileOut = open('data/events.json', 'w')
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -24,7 +21,10 @@ willReadFile = True
 isDone = False
 rawText = fileIn.read()
 fileOut.write('[\n')
-for yr in range(2020, int(argv[1])+1):
+latestYear = 2020
+while rawText.find(str(latestYear)) != -1:
+    latestYear += 1
+for yr in range(2020, latestYear):
     yr = str(yr)
     for mn in months:
         searchResults = re.search(pattern.format(mn, yr), rawText, re.M)
