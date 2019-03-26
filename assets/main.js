@@ -195,6 +195,12 @@ function onMonthUpdate(month) {
   document.getElementById('empire-number').textContent = totalEmpires;
 }
 
+function goToLatest() {
+  latestMonth = months[months.length - 1];
+  onMonthUpdate(latestMonth);
+  document.getElementsByClass(latestMonth.replace(' ', '-'))[0].focus();
+}
+
 // key events (up down arrow, etc)
 document.addEventListener('keydown', function(e) {
   if (e.code == 'ArrowDown' || e.code == 'ArrowUp') {
