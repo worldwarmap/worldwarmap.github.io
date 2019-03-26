@@ -44,11 +44,9 @@ body {
     padding: 5px;
 }
 
-/*
 .leaflet-container {
     background-color: #AADAFF;
 }
-*/
 
 .rTable {
     display: table;
@@ -68,4 +66,17 @@ body {
     display: table-cell;
   	padding: 3px 10px;
   	border: 1px solid #999999;
+}
+.legend {
+    line-height: 18px;
+    color: #555;
+    background-color: #fff;
+    padding: 4px;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
 }

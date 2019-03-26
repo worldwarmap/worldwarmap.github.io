@@ -1,7 +1,9 @@
 // impt vars
 var peacetime = 'December 2019';
 var nameChange = {'The Bahamas': 'Bahamas', 'Republic of Serbia': 'Serbia'};
+var legend = undefined;
 async function main() {
+  mapType = 0;
   // extract data from files
   var colorsText = await fetch('data/colors.json', {cache: "no-store"});
   colors = await colorsText.json(); delete colors.junk;
@@ -17,9 +19,11 @@ async function main() {
   // set initial ownership of territories: each country owns itself
   var initialOwnership = {};
   var initialEmpires = {};
+  var initialSwitches = { max: 0 };
   countries.forEach(function(country) {
     initialOwnership[country] = country;
     initialEmpires[country] = [country];
+    initialSwitches[country] = 0;
   });
   // populate ownerships & empires array starting from december 2019 to current month
   ownerships = {};
@@ -27,7 +31,9 @@ async function main() {
   ownerships[peacetime].news = 'Peacetime.';
   empiresHist = {};
   empiresHist[peacetime] = initialEmpires;
-  monthData = {};
+
+  switchesHist = {};
+  switchesHist[peacetime] = initialSwitches;
 
   lastMonth = peacetime;
   events.forEach(function(event) {
@@ -55,13 +61,23 @@ async function main() {
       });
       empiresHist[month] = empires;
 
+      // gen switches hist
+      var switches = JSON.parse(JSON.stringify(switchesHist[lastMonth]));
+      switches[territory]++;
+      if (switches[territory] > switches.max) {
+        switches.max = switches[territory];
+      }
+      switchesHist[month] = switches;
+
       months.push(month);
       lastMonth = month;
+
     }
   });
   // initialize map
   map = L.map('mapid').setView([0,0], 2);
-  L.tileLayer('http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg').addTo(map);
+  stamen = L.tileLayer('http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg')
+  stamen.addTo(map);
   // initialize shapefiles
   var layersDoneLoading = 0;
   shpfile = new L.Shapefile('ne_110m_admin_0_countries.zip', {
@@ -140,21 +156,51 @@ function onMonthUpdate(month) {
     var lastOwner = ownerships[lastMonth][currOwnership.territory];
   }
   shpfile.setZIndex(100);
+  if (mapType == 1) {
+    var switches = switchesHist[currMonth];
+    var max = switches.max;
+    function switchesColor(n) {
+      if (max == 0) return HSVtoRGB(120/360, 0.4, 0.2);
+      return HSVtoRGB(120/360 - (n / max) * (60/360), 0.4 + (n / max) * 0.6, 0.2 + (n / max) * 0.8);
+      // return (Math.floor(n * 255 / max) * 0x10000 + 0xFFFFFF + 1).toString(16).replace('1', '#');
+    }
+
+    console.log(legend);
+    if (legend) { map.removeControl(legend) };
+    legend = L.control({position: 'topright'});
+    legend.onAdd = function(map) {
+      var div = L.DomUtil.create('div', 'info legend'),
+          labels = [];
+      for (var i = 0; i <= max; i++) {
+        div.innerHTML +=
+              '<i style="background:' + switchesColor(i) + '"></i> ' +
+          i + ((i < max) ? '<div style="height: 4px;" />' : '');
+      }
+
+      return div;
+    }
+    legend.addTo(map);
+  }
+  var switches = switchesHist[currMonth];
   shpfile.eachLayer(function(layer){
     var territory = layer.territory;
     var owner = currOwnership[territory];
-    layer.setStyle({color: '#000', weight: 1, fillColor: colors[owner]});
-    layer.bindPopup('Territory: ' + territory + '<br>Owner: ' + owner);
-    if (month != peacetime) {
-      if (owner == currOwnership.conqueror) {
-        layer.setStyle({color: '#0f0', weight: 3});
+    if (mapType == 0) {
+      layer.setStyle({color: '#000', weight: 1, fillColor: colors[owner], fillOpacity: 0.8});
+      layer.bindPopup('Territory: ' + territory + '<br>Owner: ' + owner);
+      if (month != peacetime) {
+        if (owner == currOwnership.conqueror) {
+          layer.setStyle({color: '#0f0', weight: 3});
+        }
+        if (territory == currOwnership.territory) {
+          layer.setStyle({color: '#f00', weight: 3});
+        }
+        if (owner == lastOwner) {
+          layer.setStyle({color: '#00f', weight: 3});
+        }
       }
-      if (territory == currOwnership.territory) {
-        layer.setStyle({color: '#f00', weight: 3});
-      }
-      if (owner == lastOwner) {
-        layer.setStyle({color: '#00f', weight: 3});
-      }
+    } else if (mapType == 1) {
+      layer.setStyle({color: '#000', weight: 1, fillColor: switchesColor(switches[territory]), fillOpacity: 1});
     }
   });
   document.getElementById('news').textContent = currOwnership.news;
@@ -198,7 +244,19 @@ function onMonthUpdate(month) {
 function goToLatest() {
   latestMonth = months[months.length - 1];
   onMonthUpdate(latestMonth);
-  document.getElementsByClass(latestMonth.replace(' ', '-'))[0].focus();
+  document.getElementsByClassName(latestMonth.replace(' ', '-'))[0].focus();
+}
+
+function toggleSwitchesMap() {
+  mapType++;
+  mapType %= 2;
+  if (mapType == 0) {
+    stamen.addTo(map);
+  }
+  if (mapType == 1) {
+    stamen.removeFrom(map);
+  }
+  onMonthUpdate(currMonth);
 }
 
 // key events (up down arrow, etc)
@@ -230,3 +288,35 @@ document.getElementById('search-bar').addEventListener('input', function(e) {
   addButtons(searchText);
 });
 main();
+
+
+function HSVtoRGB(h, s, v) {
+    var r, g, b, i, f, p, q, t;
+    if (arguments.length === 1) {
+        s = h.s, v = h.v, h = h.h;
+    }
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+    /*
+    return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+    };
+    */
+    var r = Math.round(r * 255);
+    var g = Math.round(g * 255);
+    var b = Math.round(b * 255);
+    return (((r * 256) + g) * 256 + b + 0xFFFFFF + 1).toString(16).replace('1', '#');
+}
