@@ -487,3 +487,25 @@ January 2060, North Korea conquered East Timor territory previously occupied by 
 February 2060, Antarctica conquered Vietnam territory previously occupied by Brunei
 March 2060, Moldova conquered Macedonia territory previously occupied by Poland
 April 2060, Antarctica conquered Malaysia territory previously occupied by Brunei. Brunei has been completely defeated. 20 countries remaining.
+May 2060, North Korea conquered Malaysia territory previously occupied by Antarctica
+June 2060, Antarctica conquered Malaysia territory previously occupied by North Korea
+July 2060, Lesotho conquered Nigeria territory previously occupied by Republic of the Congo. Republic of the Congo has been completely defeated. 19 countries remaining
+August 2060, Syria conquered Afghanistan territory previously occupied by Antarctica
+September 2060, Lesotho conquered Sudan territory previously occupied by Syria
+October 2060, Ghana conquered Ghana territory previously occupied by Liberia
+November 2060, Sweden conquered Italy territory previously occupied by Algeria
+December 2060, Paraguay conquered Western Sahara territory
+January 2061, Lesotho conquered Eritrea territory previously occupied by Syria
+February 2061, Syria conquered Eritrea territory previously occupied by Lesotho
+March 2061, Liberia conquered Ghana territory
+April 2061, Paraguay conquered Sierra Leone territory previously occupied by Western Sahara
+May 2061, Lesotho conquered Eritrea territory previously occupied by Syria
+June 2061, Paraguay conquered Guinea territory previously occupied by Western Sahara. Western Sahara has been completely defeated. 18 countries remaining
+July 2061, Poland conquered Macedonia territory previously occupied by Moldova
+August 2061, Paraguay conquered Liberia territory
+September 2061, Spain conquered Western Sahara territory previously occupied by Paraguay
+October 2061, Paraguay conquered Western Sahara territory previously occupied by Spain
+November 2061, Sweden conquered Montenegro territory previously occupied by Poland
+December 2061, Syria conquered Bulgaria territory previously occupied by Moldova
+January 2062, Paraguay conquered Mauritania territory previously occupied by Mali
+February 2062, Lesotho conquered Yemen territory previously occupied by Syria

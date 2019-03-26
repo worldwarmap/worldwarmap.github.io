@@ -72,7 +72,7 @@ async function main() {
         if (layer.territory in nameChange) layer.territory = nameChange[layer.territory];
         abbrevs[layer.territory] = feature.properties.GU_A3;
         layer.setStyle({
-          fillOpacity: 0.7,
+          fillOpacity: 0.8,
           color: '#000',
           weight: 1,
           fillColor: colors[layer.territory]
